@@ -1,0 +1,204 @@
+{
+  "name": "Email Kundensupport",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Betreff: {{ $json.Subject }}\nNachricht:\n{{ $json.snippet }}",
+        "options": {
+          "systemMessage": "=Du bist ein professioneller Kundenservice-Agent. \nDeine Aufgabe ist es, eingehende Kundenanfragen präzise, höflich und vollständig zu beantworten. \nBeantworte jede Anfrage ausschließlich auf Grundlage der verfügbaren Informationen und der Dokumente, die du über die Tools abrufen kannst.\n\nWICHTIG:\n- Erfinde NIEMALS Informationen.\n- Wenn du etwas nicht weißt, suche zuerst in den verfügbaren Dokumenten (Google Drive Tools).\n- Verwende IMMER das passende Tool, wenn die Antwort in einem Dokument stehen könnte.\n- Nutze nur Inhalte aus den Dokumenten und aus der Kundennachricht.\n- Wenn Informationen fehlen oder unklar sind, frage freundlich nach einer Präzisierung.\n\nRICHTLINIEN:\n1. Identifiziere zuerst die Absicht der Kundenanfrage.\n2. Suche gezielt nach relevanten Dokumenten:\n   - Liste Dateien im angegebenen Google-Drive-Ordner.\n   - Wähle die passende Datei anhand des Titels oder Inhalts hinweises.\n   - Lade die Datei und lese den Text daraus.\n3. Erkläre deine Tool-Nutzung NICHT dem Kunden. Nutze die Informationen einfach im Hintergrund.\n4. Schreibe klare, strukturierte und höfliche Antworten.\n5. Verwende kurze Absätze, keine unnötige Fachsprache.\n6. Halte dich exakt an die originalen Dokumentinhalte.\n7. Wenn die Frage nichts mit den Dokumenten zu tun hat, gib eine neutrale, hilfreiche Antwort.\n\nFEHLER VERMEIDEN:\n- Keine Annahmen treffen.\n- Keine eigenen Regeln oder Bedingungen erfinden.\n- Keine Inhalte „ungefähr“ wiedergeben – nur exakte Infos aus Dokumenten.\n\nZIEL:\nEine professionelle, korrekte, kundenzentrierte Antwort auf Grundlage der echten Informationen in den Drive-Dateien."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        688,
+        80
+      ],
+      "id": "834e8ab7-556e-4010-b947-adb073bdf8ae",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "message": "={{ $json.output }}",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "=AI Agent",
+          "replyToSenderOnly": true
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1280,
+        112
+      ],
+      "id": "c2775f38-5682-4a79-8bd0-b272dd0fd180",
+      "name": "Reply to a message",
+      "webhookId": "38e14e41-dec5-4705-b57e-0b2f26034563",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Vpv9m1KyB8ls81WX",
+          "name": "ducnguyen0066@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "mistral:latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        704,
+        304
+      ],
+      "id": "89a264ef-4c5b-434c-a9bd-6d59f4765e66",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "wGvSYxuvOQON0zuk",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "1B9771MdjHRv9ZvaWKVYZahREJ7wYEJD3",
+          "mode": "list",
+          "cachedResultName": "Policy and FAQ Document.pdf",
+          "cachedResultUrl": "https://drive.google.com/file/d/1B9771MdjHRv9ZvaWKVYZahREJ7wYEJD3/view?usp=drivesdk"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTool",
+      "typeVersion": 3,
+      "position": [
+        832,
+        304
+      ],
+      "id": "c770a14c-5299-4b8d-9184-6c57d09388c4",
+      "name": "Download file in Google Drive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "6rMd2o9i4NxkkXTl",
+          "name": "ducnguyen0066@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $json.output; // AI Agent Output\n\n// Option 1: \\n zu <br>\nconst htmlText = text.replace(/\\n/g, \"<br>\");\n\n// Option 2: Optional: jeden Absatz in <p>\nconst paragraphs = text.split(\"\\n\\n\"); // doppelte Zeilenumbrüche für Absätze\nconst output = paragraphs.map(p => `<p>${p}</p>`).join(\"\");\n\nreturn [{ json: { htmlText, output } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        80
+      ],
+      "id": "4f2a1b72-b713-4c9e-b718-d2c2a1320b92",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        464,
+        80
+      ],
+      "id": "b99942d9-cfb8-4e2c-9602-b4aa4cd43a62",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Vpv9m1KyB8ls81WX",
+          "name": "ducnguyen0066@gmail.com"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file in Google Drive": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Reply to a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a1e60c5c-da35-4e7a-a2c5-22019ed1821d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "97b6954f1d8b4bfcc2bc50f72c3085c1f95d44630195db17078c2611035ab69b"
+  },
+  "id": "hmjEEOn9MGSrXE9a",
+  "tags": []
+}
