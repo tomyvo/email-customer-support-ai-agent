@@ -84,3 +84,70 @@ Here’s a breakdown of each node and its function:
   ```html
   <p>Hello,</p>
   <p>Thank you for your inquiry. Based on our documents...</p>
+
+---
+
+### 6. Reply to a Message ✉️
+
+Type: n8n-nodes-base.gmail
+
+Purpose: Sends the AI-generated response back to the customer.
+
+Configuration:
+
+Replies only to the original sender.
+
+Sets AI Agent as the sender name.
+
+Uses Gmail OAuth2 credentials.
+
+---
+
+### 🔄 Workflow Connections
+
+The workflow flows in this order:
+
+Gmail Trigger → AI Agent
+
+AI Agent ↔ Ollama Chat Model (for AI processing)
+
+AI Agent ↔ Download File in Google Drive (for reference documents)
+
+AI Agent Output → JavaScript Code Node (HTML formatting)
+
+JavaScript Node Output → Reply to a Message (send email)
+
+---
+
+### ⚙️ Key Features
+
+Fully automated email support.
+
+Accurate, document-backed responses.
+
+Professional tone and polite structure.
+
+HTML email formatting for readability.
+
+Can handle multiple document sources from Google Drive.
+
+---
+
+### 🌈 Summary
+
+This n8n workflow is perfect for automating customer support with AI. It saves time, ensures accuracy, and maintains professionalism while handling multiple incoming emails.
+
+Imagine an AI agent that reads, understands, researches, and replies to emails all while you focus on other tasks—that’s exactly what this workflow does! 🚀
+
+--- 
+
+
+### 📌 Notes
+
+Ensure all OAuth2 credentials are properly set up for Gmail and Google Drive.
+
+Update the Google Drive file IDs if document locations change.
+
+AI responses are limited to the content in available documents—this ensures 100% factual correctness.
+
+Works best for support teams looking to reduce manual email handling.
